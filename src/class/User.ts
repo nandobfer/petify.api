@@ -7,6 +7,7 @@ import { handlePrismaError } from "../prisma/errors"
 import { saveFile } from "../tools/saveFile"
 import { Address, AddressForm } from "./Address"
 import { Media, MediaForm } from "./Media"
+import { Pet, pet_include } from "./Pet"
 
 export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, profile_picture: true, _count: { select: { pets: true } } })
 export type UserPrisma = Prisma.UserGetPayload<{ include: typeof user_include }>
@@ -118,6 +119,12 @@ export class User {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    async getPets() {
+        const data = await prisma.pet.findMany({ where: { user_id: this.id }, include: pet_include })
+        const pets = data.map((item) => new Pet("", item))
+        return pets
     }
 }
 
