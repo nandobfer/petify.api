@@ -21,7 +21,7 @@ export type UserForm = Omit<WithoutFunctions<User>, "id" | "profile_picture" | "
     address?: AddressForm
     profile_picture?: MediaForm
 }
-export type PartialUser = Partial<User> & { id: string }
+export type PartialUser = Partial<UserForm> & { id: string }
 
 export type Gender = "male" | "female" | "other" | "undefined"
 
@@ -89,11 +89,25 @@ export class User {
         this.pets = data._count.pets
     }
 
-    async update(data: Partial<User>, socket?: Socket) {
+    async update(data: Partial<UserForm>) {
         try {
+            if (data.profile_picture) {
+                await this.updateProfilePicture(data.profile_picture)
+            }
+
+            const user_prisma = await prisma.user.update({
+                where: { id: this.id },
+                data: {
+                    ...data,
+                    address: data.address ? { update: { ...data.address } } : undefined,
+                    profile_picture: undefined,
+                },
+                include: user_include,
+            })
+
+            this.load(user_prisma)
         } catch (error) {
             const message = handlePrismaError(error)
-            socket?.emit("user:update:error", message)
             return message
         }
     }
