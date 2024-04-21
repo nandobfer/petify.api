@@ -1,6 +1,9 @@
 import { Prisma } from "@prisma/client"
+import { WithoutFunctions } from "./helpers"
 
 export type DietPrisma = Prisma.DietGetPayload<{}>
+
+export type DietForm = Omit<WithoutFunctions<Diet>, "id">
 
 export class Diet {
     id: number

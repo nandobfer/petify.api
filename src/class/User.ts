@@ -7,7 +7,7 @@ import { handlePrismaError } from "../prisma/errors"
 import { saveFile } from "../tools/saveFile"
 import { Address, AddressForm } from "./Address"
 import { Media, MediaForm } from "./Media"
-import { Pet, pet_include } from "./Pet"
+import { Pet, PetForm, pet_include } from "./Pet"
 
 export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, profile_picture: true, _count: { select: { pets: true } } })
 export type UserPrisma = Prisma.UserGetPayload<{ include: typeof user_include }>
@@ -139,6 +139,29 @@ export class User {
         const data = await prisma.pet.findMany({ where: { user_id: this.id }, include: pet_include })
         const pets = data.map((item) => new Pet("", item))
         return pets
+    }
+
+    async newPet(data: PetForm) {
+        const pet_prisma = await prisma.pet.create({
+            data: {
+                ...data,
+                id: uid(),
+                behaviors: { create: data.behaviors?.map((item) => ({ ...item })) },
+                diet_preferred: { create: data.diet_preferred?.map((item) => ({ ...item })) },
+                diet_restriction: { create: data.diet_restriction?.map((item) => ({ ...item })) },
+                user_id: this.id,
+                gallery: undefined,
+                profile_picture: undefined,
+            },
+            include: pet_include,
+        })
+
+        const pet = new Pet("", pet_prisma)
+
+        if (data.profile_picture) await pet.updateProfilePicture(data.profile_picture)
+        if (data.gallery) await pet.updateGallery(data.gallery)
+
+        return pet
     }
 }
 

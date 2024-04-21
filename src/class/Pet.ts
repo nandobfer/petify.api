@@ -1,8 +1,11 @@
 import { Prisma } from "@prisma/client"
-import { Behavior } from "./Behavior"
-import { Diet } from "./Diet"
-import { Media } from "./Media"
+import { Behavior, BehaviorForm } from "./Behavior"
+import { Diet, DietForm } from "./Diet"
+import { Media, MediaForm } from "./Media"
 import { prisma } from "../prisma"
+import { WithoutFunctions } from "./helpers"
+import { saveFile } from "../tools/saveFile"
+import { uid } from "uid"
 
 export type Sex = "male" | "female" | "undefined"
 
@@ -18,6 +21,15 @@ export const pet_include = Prisma.validator<Prisma.PetInclude>()({
 
 export type PetPrisma = Prisma.PetGetPayload<{ include: typeof pet_include }>
 
+export type PetForm = Omit<WithoutFunctions<Pet>, "id" | "diet_restriction" | "diet_preferred" | "profile_picture" | "gallery" | "user_id"> & {
+    user_id: string
+    profile_picture?: MediaForm
+    gallery?: MediaForm[]
+    diet_restriction?: DietForm[]
+    diet_preferred?: DietForm[]
+    behaviors?: BehaviorForm[]
+}
+
 export class Pet {
     id: string
     name: string
@@ -27,6 +39,7 @@ export class Pet {
     weight: string | null
     color: string | null
     sex: Sex | null
+    user_id: string | null
     diet_restriction: Diet[]
     diet_preferred: Diet[]
     behaviors: Behavior[]
@@ -53,11 +66,39 @@ export class Pet {
         this.weight = data.weight
         this.color = data.color
         this.sex = data.sex
+        this.user_id = data.user_id
         this.diet_restriction = data.diet_restriction.map((item) => new Diet(item))
         this.diet_preferred = data.diet_preferred.map((item) => new Diet(item))
         this.behaviors = data.behaviors.map((item) => new Behavior(item))
         this.emergency_contact = data.emergency_contact
         this.profile_picture = data.profile_picture ? new Media(data.profile_picture) : null
         this.gallery = data.gallery.map((item) => new Media(item))
+    }
+
+    async updateProfilePicture(data: MediaForm) {
+        try {
+            const url = saveFile(`/users/${this.user_id}/pets/${this.id}`, data.file)
+            const updated = await prisma.pet.update({
+                where: { id: this.id },
+                data: {
+                    profile_picture: {
+                        delete: { id: this.profile_picture?.id },
+                        create: {
+                            ...data,
+                            id: uid(),
+                            url,
+                        },
+                    },
+                },
+                include: pet_include,
+            })
+            this.load(updated)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async updateGallery(data: MediaForm[]) {
+        // TODO
     }
 }

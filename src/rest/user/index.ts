@@ -3,6 +3,7 @@ import login from "./login"
 import signup from "./signup"
 import { prisma } from "../../prisma"
 import { PartialUser, User, user_include } from "../../class/User"
+import { PetForm } from "../../class/Pet"
 
 const router = express.Router()
 
@@ -28,6 +29,20 @@ router.patch("/", async (request: Request, response: Response) => {
         await user.init()
         await user.update(data)
         response.json(user)
+    } catch (error) {
+        console.log(error)
+        response.status(500).send(error)
+    }
+})
+
+router.post("/pet", async (request: Request, response: Response) => {
+    const data = request.body as PetForm
+
+    try {
+        const user = new User(data.user_id)
+        await user.init()
+        const pet = await user.newPet(data)
+        response.json(pet)
     } catch (error) {
         console.log(error)
         response.status(500).send(error)

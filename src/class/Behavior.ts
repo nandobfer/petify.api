@@ -1,7 +1,10 @@
 import { Prisma } from "@prisma/client"
+import { WithoutFunctions } from "./helpers"
 
 export type BehaviorPrisma = Prisma.BehaviorGetPayload<{}>
 
+export type BehaviorForm = Omit<WithoutFunctions<Behavior>, "id">
+    
 export class Behavior {
     id: number
     name: string
