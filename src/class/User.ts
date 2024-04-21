@@ -7,9 +7,8 @@ import { handlePrismaError } from "../prisma/errors"
 import { saveFile } from "../tools/saveFile"
 import { Address, AddressForm } from "./Address"
 import { Media, MediaForm } from "./Media"
-import { Pet, pet_include } from "./Pet"
 
-export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, pets: { include: pet_include }, profile_picture: true })
+export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, profile_picture: true, _count: { select: { pets: true } } })
 export type UserPrisma = Prisma.UserGetPayload<{ include: typeof user_include }>
 export interface UserImageForm {
     id: string
@@ -17,7 +16,7 @@ export interface UserImageForm {
     cover?: FileUpload | null
 }
 
-export type UserForm = Omit<WithoutFunctions<User>, "id" | "profile_picture" | "address"> & {
+export type UserForm = Omit<WithoutFunctions<User>, "id" | "profile_picture" | "address" | "pets"> & {
     address?: AddressForm
     profile_picture?: MediaForm
 }
@@ -35,7 +34,7 @@ export class User {
     birth: string | null
     gender: Gender | null
     address: Address | null
-    pets: Pet[]
+    pets: number
     profile_picture: Media | null
 
     constructor(id: string, user_prisma?: UserPrisma) {
@@ -59,7 +58,6 @@ export class User {
                     id: uid(),
                     address: data.address ? { create: { ...data.address } } : undefined,
                     profile_picture: undefined,
-                    pets: undefined,
                 },
                 include: user_include,
             })
@@ -87,7 +85,7 @@ export class User {
         this.gender = data.gender
         this.address = data.address ? new Address(data.address) : null
         this.profile_picture = data.profile_picture ? new Media(data.profile_picture) : null
-        this.pets = data.pets.map((item) => new Pet("", item))
+        this.pets = data._count.pets
     }
 
     async update(data: Partial<User>, socket?: Socket) {
