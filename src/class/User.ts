@@ -7,8 +7,9 @@ import { handlePrismaError } from "../prisma/errors"
 import { saveFile } from "../tools/saveFile"
 import { Address, AddressForm } from "./Address"
 import { Media, MediaForm } from "./Media"
+import { Pet, pet_include } from "./Pet"
 
-export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, pets: true, profile_picture: true })
+export const user_include = Prisma.validator<Prisma.UserInclude>()({ address: true, pets: { include: pet_include }, profile_picture: true })
 export type UserPrisma = Prisma.UserGetPayload<{ include: typeof user_include }>
 export interface UserImageForm {
     id: string
@@ -34,7 +35,7 @@ export class User {
     birth: string | null
     gender: Gender | null
     address: Address | null
-    // TODO pets: Pet[]
+    pets: Pet[]
     profile_picture: Media | null
 
     constructor(id: string, user_prisma?: UserPrisma) {
@@ -58,6 +59,7 @@ export class User {
                     id: uid(),
                     address: data.address ? { create: { ...data.address } } : undefined,
                     profile_picture: undefined,
+                    pets: undefined,
                 },
                 include: user_include,
             })
@@ -85,6 +87,7 @@ export class User {
         this.gender = data.gender
         this.address = data.address ? new Address(data.address) : null
         this.profile_picture = data.profile_picture ? new Media(data.profile_picture) : null
+        this.pets = data.pets.map((item) => new Pet("", item))
     }
 
     async update(data: Partial<User>, socket?: Socket) {
