@@ -1,0 +1,14 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+// generator erd {
+//   provider = "prisma-erd-generator"
+//   output   = "./"
+// }
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}

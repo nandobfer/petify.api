@@ -1,0 +1,13 @@
+enum MediaType {
+    video
+    image
+}
+
+model Media {
+    id          String          @id
+    url         String
+    type        MediaType
+    position    Int             @default(1)
+    width       Int             
+    height      Int             
+}

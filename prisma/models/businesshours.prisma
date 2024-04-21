@@ -1,0 +1,16 @@
+enum WeekDay {
+    sunday
+    monday
+    tuesday
+    wednesday
+    thursday
+    friday
+    saturday
+}
+
+model BusinessHours {
+    id          Int         @id @default(autoincrement())
+    day         WeekDay
+    opens       String
+    closes      String
+}

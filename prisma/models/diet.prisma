@@ -1,0 +1,12 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Diet {
+    id          Int         @id @default(autoincrement())
+    name        String
+    quantity    String?
+    interval    String?
+    notes       String?     @db.Text
+}

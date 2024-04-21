@@ -1,0 +1,15 @@
+enum Services {
+    medical
+    esthetics
+    lodging
+    walking
+    healthcare
+    breeding
+    transport
+    homecare
+}
+
+model Service {
+    id          Int         @id @default(autoincrement())
+    type        Services
+}

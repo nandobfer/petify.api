@@ -1,0 +1,58 @@
+enum PetType {
+    exotic
+    domestic
+    rural
+}
+
+enum Type {
+    autonomous
+    business
+}
+
+model Provider {
+    id              String          @id
+    name            String
+    document        String
+    type            Type
+
+    address_id      Int
+    address         Address         @relation(fields: [address_id], references: [id], onDelete: Cascade)
+    pets            Pet[]
+    pet_type        PetType
+    services        Service[]
+    business_hours  BusinessHours[]
+
+    profile_picture_id  String?             @unique
+    profile_picture     Media?              @relation(fields: [profile_picture_id], references: [id], onDelete: SetNull)
+    gallery             Media[]             @relation(name: "provider-gallery")
+}
+
+model BusinessHours {
+    id              Int         @id @default(autoincrement())
+    providers       Provider[]
+}
+
+
+model Address {
+    id              Int         @id @default(autoincrement())
+    providers       Provider[]
+}
+
+model Pet {
+    id              String      @id
+    providers       Provider[]
+
+    type            PetType?
+}
+
+model Service {
+    id              Int         @id @default(autoincrement())
+    providers       Provider[]
+}
+
+model Media {
+    id                   String                  @id
+
+    provider_profile     Provider?
+    provider_gallery     Provider[]                   @relation(name: "provider-gallery")
+}

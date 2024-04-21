@@ -1,0 +1,44 @@
+enum Sex {
+    male
+    female
+    undefined
+}
+
+model Pet {
+    id                  String              @id
+    name                String
+    species             String?
+    breed               String?
+    birth               String?
+    weight              String?
+    sex                 Sex?
+    color               String?
+
+    diet_restriction    Diet[]              @relation(name: "diet_restriction")
+    diet_preferred      Diet[]              @relation(name: "diet_preferred")
+    behaviors           Behavior[]
+
+    emergency_contact   String?
+
+    profile_picture_id  String?             @unique
+    profile_picture     Media?              @relation(fields: [profile_picture_id], references: [id], onDelete: SetNull)
+    gallery             Media[]             @relation(name: "pet-gallery")
+}
+
+model Diet {
+    id          Int                         @id @default(autoincrement())
+    preferred   Pet[]                       @relation(name: "diet_preferred")
+    restriction Pet[]                       @relation(name: "diet_restriction")
+}
+
+model Behavior {
+    id          Int                         @id @default(autoincrement())
+    pets        Pet[]
+}
+
+model Media {
+    id              String                  @id
+
+    pet_profile     Pet?
+    pet_gallery     Pet[]                   @relation(name: "pet-gallery")
+}

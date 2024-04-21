@@ -1,0 +1,10 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Behavior {
+    id              Int         @id @default(autoincrement())
+    name            String
+    description     String?     @db.Text
+}

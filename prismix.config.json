@@ -1,0 +1,20 @@
+{
+    "mixers": [
+        {
+            "input": [
+                "prisma/models/user.prisma",
+                "prisma/models/address.prisma",
+                "prisma/models/behavior.prisma",
+                "prisma/models/businessHours.prisma",
+                "prisma/models/diet.prisma",
+                "prisma/models/media.prisma",
+                "prisma/models/pet.prisma",
+                "prisma/models/provider.prisma",
+                "prisma/models/schedule.prisma",
+                "prisma/models/service.prisma",
+                "prisma/base.prisma"
+            ],
+            "output": "prisma/schema.prisma"
+        }
+    ]
+}
