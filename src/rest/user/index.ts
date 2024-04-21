@@ -35,18 +35,4 @@ router.patch("/", async (request: Request, response: Response) => {
     }
 })
 
-router.post("/pet", async (request: Request, response: Response) => {
-    const data = request.body as PetForm
-
-    try {
-        const user = new User(data.user_id)
-        await user.init()
-        const pet = await user.newPet(data)
-        response.json(pet)
-    } catch (error) {
-        console.log(error)
-        response.status(500).send(error)
-    }
-})
-
 export default router
